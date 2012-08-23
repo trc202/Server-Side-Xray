@@ -1,0 +1,14 @@
+name: ServerSideXray
+version: 0.1
+author: Trc202
+main: com.trc202.ServerSideXray.ServerSideXray
+
+commands:
+  Xray:
+    description: Server side X-Ray
+    aliases: SX
+    usage:
+  Glow:
+    description: Sends glowstone to the client
+    aliases: GS
+    usage:

@@ -3,6 +3,7 @@ package com.trc202.ServerSideXray;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -18,45 +19,48 @@ public class PlayerInfo implements Serializable{
 	 */
 	private transient ArrayList<Block> Drawnblocks;
 	private ArrayList<SerializableLocation> BlockLocationList;
-	private String plrname;
+	private UUID plrUUID;
 	private int xarea = 5;
 	private int yarea = 5;
 	private int zarea = 5;
-	private boolean glowstoneenabled = true;
-	private ArrayList<Material> hiddenblocks;
-	private ArrayList<Material> highlitedblocks;
-	public PlayerInfo(String playername)
+	private boolean glowStoneEnabled = true;
+	private ArrayList<Material> hiddenBlocks;
+	private ArrayList<Material> highlightedBlocks;
+	public PlayerInfo(UUID playerUUID)
 	{
 		Drawnblocks = new ArrayList<Block>();
 		BlockLocationList = new ArrayList<SerializableLocation>();
-		hiddenblocks = new ArrayList<Material>();
-		highlitedblocks = new ArrayList<Material>();
-		plrname = playername;
-		hiddenblocks.add(Material.STONE);
-		hiddenblocks.add(Material.DIRT);
-		hiddenblocks.add(Material.GRASS);
-		hiddenblocks.add(Material.GRAVEL);
-		hiddenblocks.add(Material.SAND);
-		hiddenblocks.add(Material.SANDSTONE);
-		highlitedblocks.add(Material.DIAMOND_ORE);
-		highlitedblocks.add(Material.GOLD_ORE);
-		highlitedblocks.add(Material.CHEST);
-		highlitedblocks.add(Material.IRON_ORE);
+		hiddenBlocks = new ArrayList<Material>();
+		highlightedBlocks = new ArrayList<Material>();
+		plrUUID = playerUUID;
+		hiddenBlocks.add(Material.STONE);
+		hiddenBlocks.add(Material.DIRT);
+		hiddenBlocks.add(Material.GRASS);
+		hiddenBlocks.add(Material.GRAVEL);
+		hiddenBlocks.add(Material.SAND);
+		hiddenBlocks.add(Material.SANDSTONE);
+		highlightedBlocks.add(Material.DIAMOND_ORE);
+		highlightedBlocks.add(Material.GOLD_ORE);
+		highlightedBlocks.add(Material.CHEST);
+		highlightedBlocks.add(Material.IRON_ORE);
+		highlightedBlocks.add(Material.LAPIS_ORE);
+		highlightedBlocks.add(Material.EMERALD_ORE);
 	}
 	public PlayerInfo(PlayerInfo info)
 	{
 		Drawnblocks = new ArrayList<Block>();
 		BlockLocationList = new ArrayList<SerializableLocation>();
-		hiddenblocks = new ArrayList<Material>();
-		highlitedblocks = new ArrayList<Material>();
-		plrname = info.getPlayerName();
-		hiddenblocks = info.getHiddenBlocksCopy();
-		highlitedblocks = info.getHighlitedBlocksCopy();
+		hiddenBlocks = new ArrayList<Material>();
+		highlightedBlocks = new ArrayList<Material>();
+		plrUUID = info.getPlayerUUID();
+		hiddenBlocks = info.getHiddenBlocksCopy();
+		highlightedBlocks = info.getHighlightedBlocksCopy();
+		
 		
 	}
-	public String getPlayerName()
+	public UUID getPlayerUUID()
 	{
-		return plrname;
+		return plrUUID;
 	}
 	public void addToDrawnBlocks(ArrayList<Block> blockstoadd)
 	{
@@ -92,37 +96,37 @@ public class PlayerInfo implements Serializable{
 		return zarea;
 	}
 	public void setGlowstoneenabled(boolean glowstoneenabled) {
-		this.glowstoneenabled = glowstoneenabled;
+		this.glowStoneEnabled = glowstoneenabled;
 	}
 
 	public boolean isGlowstoneenabled() {
-		return glowstoneenabled;
+		return glowStoneEnabled;
 	}
 	
 	public void addToHiddenblocks(Material hiddenblock)
 	{
-		if(!this.hiddenblocks.contains(hiddenblock))
+		if(!this.hiddenBlocks.contains(hiddenblock))
 		{
-			hiddenblocks.add(hiddenblock);
+			hiddenBlocks.add(hiddenblock);
 		}
 		return;
 	}
 	public void removeFromHiddenblocks(Material hiddenblock)
 	{
-		if(this.hiddenblocks.contains(hiddenblock))
+		if(this.hiddenBlocks.contains(hiddenblock))
 		{
-			this.hiddenblocks.remove(hiddenblock);
+			this.hiddenBlocks.remove(hiddenblock);
 		}
 		return;
 	}
 	public boolean shouldBeHidden(Material m)
 	{
-		return hiddenblocks.contains(m);
+		return hiddenBlocks.contains(m);
 	}
 	public String listHiddenBlocks()
 	{
 		String materialList = "";
-		for(Material m : hiddenblocks)
+		for(Material m : hiddenBlocks)
 		{
 			materialList = materialList + m.toString() + " ";
 		}
@@ -131,45 +135,45 @@ public class PlayerInfo implements Serializable{
 	public ArrayList<Material> getHiddenBlocksCopy()
 	{
 		ArrayList<Material> out = new ArrayList<Material>();
-		for(Material m: hiddenblocks)
+		for(Material m: hiddenBlocks)
 		{
 			out.add(m);
 		}
 		return out;
 	}
 	
-	public void addtohighlitedblocks(Material hiddenblock)
+	public void addToHighlightedBlocks(Material hiddenblock)
 	{
-		if(!this.highlitedblocks.contains(hiddenblock))
+		if(!this.highlightedBlocks.contains(hiddenblock))
 		{
-			highlitedblocks.add(hiddenblock);
+			highlightedBlocks.add(hiddenblock);
 		}
 		return;
 	}
 	public void removefromhighlitedblocks(Material highlitedblock)
 	{
-		if(this.highlitedblocks.contains(highlitedblock))
+		if(this.highlightedBlocks.contains(highlitedblock))
 		{
-			this.highlitedblocks.remove(highlitedblock);
+			this.highlightedBlocks.remove(highlitedblock);
 		}
 	}
-	public boolean shouldBeHighlited(Material m)
+	public boolean shouldBeHighlighted(Material m)
 	{
-		return highlitedblocks.contains(m);
+		return highlightedBlocks.contains(m);
 	}
-	public String listHighlitedBlocks()
+	public String listHighlightedBlocks()
 	{
 		String materialList = "";
-		for(Material m : highlitedblocks)
+		for(Material m : highlightedBlocks)
 		{
 			materialList = materialList + m.toString() + " ";
 		}
 		return materialList;
 	}
-	public ArrayList<Material> getHighlitedBlocksCopy()
+	public ArrayList<Material> getHighlightedBlocksCopy()
 	{
 		ArrayList<Material> out = new ArrayList<Material>();
-		for(Material m : highlitedblocks)
+		for(Material m : highlightedBlocks)
 		{
 			out.add(m);
 		}
@@ -203,8 +207,8 @@ public class PlayerInfo implements Serializable{
 
 	public void importHiddenHighlightedBlocks(PlayerInfo plrinfo)
 	{
-		this.highlitedblocks = plrinfo.getHighlitedBlocksCopy();
-		this.hiddenblocks = plrinfo.getHiddenBlocksCopy();
+		this.highlightedBlocks = plrinfo.getHighlightedBlocksCopy();
+		this.hiddenBlocks = plrinfo.getHiddenBlocksCopy();
 	}
 	
 	public void prepareForSerialization()

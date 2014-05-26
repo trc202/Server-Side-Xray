@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.UUID;
 import java.util.logging.Logger;
 
 import org.bukkit.Chunk;
@@ -39,9 +40,9 @@ public class ServerSideXray extends JavaPlugin{
     private static File playerinfopersistent = new File(mainDirectory + File.separator + "persistentPlrInfo.ser");
     private static File playerglowinfo = new File(mainDirectory + File.separator + "glowPlrInfo.ser");
 	
-	private volatile HashMap<String,PlayerInfo> playerlist = new HashMap<String,PlayerInfo>();
-	private HashMap<String, PlayerInfo> persistentplrinfo = new HashMap<String, PlayerInfo>();
-	private volatile HashMap<String, PlayerInfo> glowBlockPlayerList = new HashMap<String, PlayerInfo>();
+	private volatile HashMap<UUID,PlayerInfo> playerlist = new HashMap<UUID,PlayerInfo>();
+	private HashMap<UUID, PlayerInfo> persistentplrinfo = new HashMap<UUID, PlayerInfo>();
+	private volatile HashMap<UUID, PlayerInfo> glowBlockPlayerList = new HashMap<UUID, PlayerInfo>();
 	private volatile ArrayList<BlocksToBeSent> blocksunsentlist = new ArrayList<BlocksToBeSent>();
 	
 	@Override
@@ -108,11 +109,11 @@ public class ServerSideXray extends JavaPlugin{
             	while(i.hasNext())
             	{
             		PlayerInfo plr = i.next();
-            		if((getServer().getPlayer(plr.getPlayerName()) != null) && (getServer().getPlayer(plr.getPlayerName()).isOnline()))
+            		if((getServer().getPlayer(plr.getPlayerUUID()) != null) && (getServer().getPlayer(plr.getPlayerUUID()).isOnline()))
             		{
-            			log.info("Loaded " + plr.getPlayerName() + " into glow player list");
+            			log.info("Loaded " + getServer().getPlayer(plr.getPlayerUUID()).getName() + " into glow player list");
             			plr.deSerilize(this);
-            			glowBlockPlayerList.put(plr.getPlayerName(), plr);
+            			glowBlockPlayerList.put(plr.getPlayerUUID(), plr);
             		}
             	}
             }
@@ -166,7 +167,7 @@ public class ServerSideXray extends JavaPlugin{
             	while(i.hasNext())
             	{
             		PlayerInfo plr = i.next();
-            		persistentplrinfo.put(plr.getPlayerName(), plr);
+            		persistentplrinfo.put(plr.getPlayerUUID(), plr);
             	}
             }
         	fis.close();
@@ -226,7 +227,7 @@ public class ServerSideXray extends JavaPlugin{
             	while(i.hasNext())
             	{
             		PlayerInfo temp = i.next();
-            		if(getServer().getPlayer(temp.getPlayerName()) != null && getServer().getPlayer(temp.getPlayerName()).isOnline())
+            		if(getServer().getPlayer(temp.getPlayerUUID()) != null && getServer().getPlayer(temp.getPlayerUUID()).isOnline())
             		{
             			temp.deSerilize(this);
             			addToPlayerList(temp);	
@@ -251,7 +252,8 @@ public class ServerSideXray extends JavaPlugin{
 		BukkitScheduler schedule = getServer().getScheduler();
 		schedule.scheduleSyncRepeatingTask(this, new Runnable() {
 
-		    public void run() 
+		    @SuppressWarnings("deprecation")
+			public void run() 
 		    {
 	    		ArrayList<BlocksToBeSent> synclist = blocksunsentlist;
 		    	if(synclist.isEmpty())
@@ -275,7 +277,9 @@ public class ServerSideXray extends JavaPlugin{
 		    				for(Block b : glassLocations)
 		    				{
 		    					if(b.getType() != Material.AIR)
-		    					plr.sendBlockChange(b.getLocation(), Material.GLASS, (byte)0);
+		    					{
+		    						plr.sendBlockChange(b.getLocation(), Material.GLASS, (byte)0);
+		    					}
 		    				}
 		    				ArrayList<Block> originalblocks = blockstobesent.getOriginal(100);
 		    				for(Block b : originalblocks)
@@ -304,19 +308,20 @@ public class ServerSideXray extends JavaPlugin{
 		
 	}
 
-	public PlayerInfo getPlrInfo(String playername)
+	public PlayerInfo getPlrInfo(UUID playerUUID)
 	{
-		return playerlist.get(playername);
+		return playerlist.get(playerUUID);
 	}
-	public PlayerInfo getGlowstonePlrInfo(String playername)
+	public PlayerInfo getGlowstonePlrInfo(UUID playerUUID)
 	{
-		return glowBlockPlayerList.get(playername);
+		return glowBlockPlayerList.get(playerUUID);
 	}
 	
 	/*
 	 * Will take the x,y,z and get +/- that many blocks in each direction from location
 	 * Adds the blocks into the hashmap for blocks to be sent
 	 */
+	@SuppressWarnings("deprecation")
 	public BlocksToBeSent getFilteredBlocksinRadius(Location location, Player p , PlayerInfo plrInfo) {
 		int thex = plrInfo.getXarea();
 		int they = plrInfo.getYarea();
@@ -347,10 +352,10 @@ public class ServerSideXray extends JavaPlugin{
 							}
 							else if(getGlowstone == true)
 							{
-								if(plrInfo.shouldBeHighlited(Material.getMaterial(blockid)))
+								if(plrInfo.shouldBeHighlighted(Material.getMaterial(blockid)))
 								{
 									Block ablock = theworld.getBlockAt((location.getBlockX() + x), (location.getBlockY() + y), (location.getBlockZ() + z));
-									if(!(plrInfo.shouldBeHighlited(Material.getMaterial(ablock.getRelative(BlockFace.DOWN).getTypeId()))))
+									if(!(plrInfo.shouldBeHighlighted(Material.getMaterial(ablock.getRelative(BlockFace.DOWN).getTypeId()))))
 									{
 										blocksbelowores.add(ablock.getRelative(BlockFace.DOWN));
 									}
@@ -371,7 +376,7 @@ public class ServerSideXray extends JavaPlugin{
 				hiddenblocks.remove(glowblock);
 			}
 		}
-		BlocksToBeSent tmpholder = new BlocksToBeSent(p.getName());
+		BlocksToBeSent tmpholder = new BlocksToBeSent(p.getUniqueId());
 		tmpholder.addToGlass(hiddenblocks);
 		tmpholder.addToGlowstone(blocksbelowores);
 		return tmpholder;
@@ -406,14 +411,14 @@ public class ServerSideXray extends JavaPlugin{
 	/*
 	 * Removes all blocks from the drawn block list
 	 */
-	public void clearDrawnBlocks(String playername)
+	public void clearDrawnBlocks(UUID playerUUID)
 	{
-		PlayerInfo plrinfo = getPlrInfo(playername);
+		PlayerInfo plrinfo = getPlrInfo(playerUUID);
 		plrinfo.clearDrawnBlocks();
 	}
-	public void clearDrawnGlowBlocks(String playername)
+	public void clearDrawnGlowBlocks(UUID playerUUID)
 	{
-		PlayerInfo plrinfo = getGlowstonePlrInfo(playername);
+		PlayerInfo plrinfo = getGlowstonePlrInfo(playerUUID);
 		plrinfo.clearDrawnBlocks();
 	}
 
@@ -421,15 +426,15 @@ public class ServerSideXray extends JavaPlugin{
 	{
 		return (!playerlist.isEmpty());
 	}
-	public boolean isUsingXRay(String name) {
-		if(playerlist.containsKey(name))
+	public boolean isUsingXRay(UUID playerUUID) {
+		if(playerlist.containsKey(playerUUID))
 		{
 			return true;
 		}
 		return false;
 	}
-	public boolean isUsingGlowBlock(String name) {
-		if(glowBlockPlayerList.containsKey(name))
+	public boolean isUsingGlowBlock(UUID playerUUID) {
+		if(glowBlockPlayerList.containsKey(playerUUID))
 		{
 			return true;
 		}
@@ -502,39 +507,39 @@ public class ServerSideXray extends JavaPlugin{
 
 	public void addToPersistantplayerList(PlayerInfo p)
 	{
-		PlayerInfo store = new PlayerInfo(p.getPlayerName());
+		PlayerInfo store = new PlayerInfo(p.getPlayerUUID());
 		store.importHiddenHighlightedBlocks(p);
-		persistentplrinfo.put(store.getPlayerName(), store);
+		persistentplrinfo.put(store.getPlayerUUID(), store);
 	}
-	public PlayerInfo getFromPersistantplayerList(String playername)
+	public PlayerInfo getFromPersistantplayerList(UUID playerUUID)
 	{
-		if(persistentplrinfo.containsKey(playername))
+		if(persistentplrinfo.containsKey(playerUUID))
 		{
-			PlayerInfo p = persistentplrinfo.get(playername);
+			PlayerInfo p = persistentplrinfo.get(playerUUID);
 			PlayerInfo out = new PlayerInfo(p);
 			return out;
 		}
 		else
 		{
-			return new PlayerInfo(playername);
+			return new PlayerInfo(playerUUID);
 		}
 	}
 
 	public void addToPlayerList(PlayerInfo p)
 	{
-		playerlist.put(p.getPlayerName(), p);
+		playerlist.put(p.getPlayerUUID(), p);
 	}
-	public void removeFromPlayerList(String plrname)
+	public void removeFromPlayerList(UUID playerUUID)
 	{
-		playerlist.remove(plrname);
+		playerlist.remove(playerUUID);
 	}
 	public void addToGlowPlayerList(PlayerInfo p)
 	{
-		glowBlockPlayerList.put(p.getPlayerName(), p);
+		glowBlockPlayerList.put(p.getPlayerUUID(), p);
 	}
-	public void removeFromGlowPlayerList(String plrname)
+	public void removeFromGlowPlayerList(UUID playerUUID)
 	{
-		glowBlockPlayerList.remove(plrname);
+		glowBlockPlayerList.remove(playerUUID);
 		return;
 	}
 }

@@ -36,14 +36,14 @@ public class CXBlockListener implements Listener {
 			ArrayList<PlayerInfo> xrayers = new ArrayList<PlayerInfo>();
 			for(Player possablexrayer : playersinarea )
 			{
-				if(plugin.isUsingXRay(possablexrayer.getName()))
+				if(plugin.isUsingXRay(possablexrayer.getUniqueId()))
 				{
-					xrayers.add(plugin.getPlrInfo(possablexrayer.getName()));
+					xrayers.add(plugin.getPlrInfo(possablexrayer.getUniqueId()));
 				}
 			}
 			for(PlayerInfo xrayuser : xrayers)
 			{
-				BlocksToBeSent temp = plugin.getFilteredBlocksinRadius(event.getBlock().getLocation(), plugin.getServer().getPlayer(xrayuser.getPlayerName()), xrayuser);
+				BlocksToBeSent temp = plugin.getFilteredBlocksinRadius(event.getBlock().getLocation(), plugin.getServer().getPlayer(xrayuser.getPlayerUUID()), xrayuser);
 				temp.setWait(true);
 				plugin.addtoBlockSendingList(temp);
 			}
@@ -68,14 +68,14 @@ public class CXBlockListener implements Listener {
 			ArrayList<PlayerInfo> xrayers = new ArrayList<PlayerInfo>();
 			for(Player possablexrayer : playersinarea )
 			{
-				if(plugin.isUsingXRay(possablexrayer.getName()))
+				if(plugin.isUsingXRay(possablexrayer.getUniqueId()))
 				{
-					xrayers.add(plugin.getPlrInfo(possablexrayer.getName()));
+					xrayers.add(plugin.getPlrInfo(possablexrayer.getUniqueId()));
 				}
 			}
 			for(PlayerInfo xrayuser : xrayers)
 			{
-				BlocksToBeSent temp = plugin.getFilteredBlocksinRadius(event.getBlock().getLocation(), plugin.getServer().getPlayer(xrayuser.getPlayerName()), xrayuser);
+				BlocksToBeSent temp = plugin.getFilteredBlocksinRadius(event.getBlock().getLocation(), plugin.getServer().getPlayer(xrayuser.getPlayerUUID()), xrayuser);
 				temp.setWait(true);
 				plugin.addtoBlockSendingList(temp);
 			}

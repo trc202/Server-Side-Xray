@@ -1,6 +1,7 @@
 package com.trc202.ServerSideXray;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,9 +33,9 @@ public class CXPlrListener implements Listener {
 		Location to = event.getTo();
 		if(locationHasChanged(from, to))
 		{
-			if(plugin.isUsingXRay(event.getPlayer().getName()))
+			if(plugin.isUsingXRay(event.getPlayer().getUniqueId()))
 			{
-				PlayerInfo plrinfo = plugin.getPlrInfo(event.getPlayer().getName());
+				PlayerInfo plrinfo = plugin.getPlrInfo(event.getPlayer().getUniqueId());
 				BlocksToBeSent tmpblocks = plugin.getFilteredBlocksinRadius(event.getTo(), event.getPlayer(), plrinfo);
 				BlocksToBeSent filtered = plugin.removePreviouslySentBlocks(tmpblocks, plrinfo);
 				plrinfo.addToDrawnBlocks(filtered.getGlass());
@@ -53,7 +54,7 @@ public class CXPlrListener implements Listener {
 		{
 			return;
 		}
-		if(plugin.isUsingGlowBlock(event.getPlayer().getName()))
+		if(plugin.isUsingGlowBlock(event.getPlayer().getUniqueId()))
 		{
 			if(event.getClickedBlock().getType() == Material.CHEST || event.getClickedBlock().getType() == Material.FURNACE || event.getClickedBlock().getType() == Material.DISPENSER)
 			{
@@ -64,12 +65,12 @@ public class CXPlrListener implements Listener {
 				if(event.getPlayer().getItemInHand().getType() == Material.AIR)
 				{
 					Block changedblock = event.getClickedBlock();
-					BlocksToBeSent temp = new BlocksToBeSent(event.getPlayer().getName());
+					BlocksToBeSent temp = new BlocksToBeSent(event.getPlayer().getUniqueId());
 					ArrayList<Block> b = new ArrayList<Block>();
 					b.add(changedblock);
 					temp.addToGlowstone(b);
 					temp.setWait(true);
-					plugin.getGlowstonePlrInfo(event.getPlayer().getName()).addToDrawnBlocks(b);
+					plugin.getGlowstonePlrInfo(event.getPlayer().getUniqueId()).addToDrawnBlocks(b);
 					plugin.addtoBlockSendingList(temp);
 				}
 			}
@@ -99,28 +100,28 @@ public class CXPlrListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerQuit(PlayerQuitEvent event)
 	{
-		String plrname = event.getPlayer().getName();
-		if(plugin.isUsingXRay(plrname))
+		UUID playerUUID = event.getPlayer().getUniqueId();
+		if(plugin.isUsingXRay(playerUUID))
 		{
-			plugin.clearDrawnBlocks(plrname);
+			plugin.clearDrawnBlocks(playerUUID);
 		}
-		if(plugin.isUsingGlowBlock(plrname))
+		if(plugin.isUsingGlowBlock(playerUUID))
 		{
-			plugin.clearDrawnGlowBlocks(plrname);
+			plugin.clearDrawnGlowBlocks(playerUUID);
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onPlayerKick(PlayerKickEvent event)
 	{
-		String plrname = event.getPlayer().getName();
-		if(plugin.isUsingXRay(plrname))
+		UUID playerUUID = event.getPlayer().getUniqueId();
+		if(plugin.isUsingXRay(playerUUID))
 		{
-			plugin.clearDrawnBlocks(plrname);
+			plugin.clearDrawnBlocks(playerUUID);
 		}
-		if(plugin.isUsingGlowBlock(plrname))
+		if(plugin.isUsingGlowBlock(playerUUID))
 		{
-			plugin.clearDrawnGlowBlocks(plrname);
+			plugin.clearDrawnGlowBlocks(playerUUID);
 		}
 	}
 }

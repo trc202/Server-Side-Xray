@@ -17,29 +17,29 @@ public class CommandManager {
 	
 	public boolean processXrayCommand(Player player, String[] split)
 	{
-		if(player.hasPermission("ServerXray.Xray") || player.isOp())
+		if(player.hasPermission("ServerSideXray.Xray") || player.isOp())
 		{
 			Boolean startedxraying = false;
 			PlayerInfo plrinfo = null;
-			if(plugin.isUsingXRay(player.getName()))
+			if(plugin.isUsingXRay(player.getUniqueId()))
 			{
-				plrinfo = plugin.getPlrInfo(player.getName());
+				plrinfo = plugin.getPlrInfo(player.getUniqueId());
 			}
 			else
 			{
-				plrinfo = plugin.getFromPersistantplayerList(player.getName());
+				plrinfo = plugin.getFromPersistantplayerList(player.getUniqueId());
 				startedxraying = true;
 			}
 			Material blockmaterial = null;
 			
 			if(split.length == 0)
 			{
-				if(plugin.isUsingXRay(player.getName()))
+				if(plugin.isUsingXRay(player.getUniqueId()))
 				{
-					BlocksToBeSent btbs = new BlocksToBeSent(player.getName());
+					BlocksToBeSent btbs = new BlocksToBeSent(player.getUniqueId());
 					btbs.addToOriginal(plrinfo.getDrawnBlocks());
 					plugin.addtoBlockSendingList(btbs);
-					plugin.removeFromPlayerList(player.getName());
+					plugin.removeFromPlayerList(player.getUniqueId());
 					player.sendMessage(ChatColor.RED + "Stopped Xraying");
 					plugin.log.info(player.getName() + " Stopped Xraying");
 					plugin.addToPersistantplayerList(plrinfo);
@@ -62,7 +62,7 @@ public class CommandManager {
 				else if(split[0].equalsIgnoreCase("list"))
 				{
 					player.sendMessage(ChatColor.RED + "Hidden Blocks: "+ChatColor.WHITE +plrinfo.listHiddenBlocks());
-					player.sendMessage(ChatColor.RED + "Highlited Blocks: " + ChatColor.WHITE + plrinfo.listHighlitedBlocks());
+					player.sendMessage(ChatColor.RED + "Highlited Blocks: " + ChatColor.WHITE + plrinfo.listHighlightedBlocks());
 					//List blocks hidden and highlighted
 					return true;
 				}
@@ -120,7 +120,7 @@ public class CommandManager {
 					//remove material to players playerinfo
 					plrinfo.removeFromHiddenblocks(blockmaterial);
 					ArrayList<Block> nowshown = plrinfo.getDrawnBlocksofType(blockmaterial);
-					BlocksToBeSent nowshownblocks = new BlocksToBeSent(player.getName());
+					BlocksToBeSent nowshownblocks = new BlocksToBeSent(player.getUniqueId());
 					nowshownblocks.addToOriginal(nowshown);
 					plrinfo.removeDrawnBlocksofType(blockmaterial);
 					plugin.addtoBlockSendingList(nowshownblocks);
@@ -147,7 +147,7 @@ public class CommandManager {
 						player.sendMessage(ChatColor.RED + "Conflicting blocks detected. Canceling.");
 						return true;
 					}
-					plrinfo.addtohighlitedblocks(blockmaterial);
+					plrinfo.addToHighlightedBlocks(blockmaterial);
 					if(startedxraying == true)
 					{
 						plugin.log.info(player.getName() + " Started Xraying");
@@ -190,26 +190,26 @@ public class CommandManager {
 	
 	 public boolean processGlowstoneCommand(Player player, String[] split)
 	 {
-		 if(player.hasPermission("ServerXray.glowstone") || player.isOp())
+		 if(player.hasPermission("ServerSideXray.glowstone") || player.isOp())
 		 {
 			 if(split.length == 0)
 			 {
 				 PlayerInfo plrinfo = null;
-				 if(plugin.isUsingGlowBlock(player.getName()))
+				 if(plugin.isUsingGlowBlock(player.getUniqueId()))
 				 {
-					 plrinfo = plugin.getGlowstonePlrInfo(player.getName());
+					 plrinfo = plugin.getGlowstonePlrInfo(player.getUniqueId());
 				 }
 				 else
 				 {
-					 plrinfo = new PlayerInfo(player.getName());
+					 plrinfo = new PlayerInfo(player.getUniqueId());
 				 }
 				 
-				 if(plugin.isUsingGlowBlock(player.getName()))
+				 if(plugin.isUsingGlowBlock(player.getUniqueId()))
 				 {
-					 BlocksToBeSent btbs = new BlocksToBeSent(player.getName());
+					 BlocksToBeSent btbs = new BlocksToBeSent(player.getUniqueId());
 					 btbs.addToOriginal(plrinfo.getDrawnBlocks());
 					 plugin.addtoBlockSendingList(btbs);
-					 plugin.removeFromGlowPlayerList(player.getName());
+					 plugin.removeFromGlowPlayerList(player.getUniqueId());
 					 player.sendMessage(ChatColor.RED + "Stopped using Client glowstone");
 					 return true;
 				 }
@@ -262,7 +262,7 @@ public class CommandManager {
 		 }
 		 else if(s.equalsIgnoreCase("Hide"))
 		 {
-			 if(plr.shouldBeHighlited(m))
+			 if(plr.shouldBeHighlighted(m))
 			 {
 				 return true;
 			 }
@@ -286,7 +286,8 @@ public class CommandManager {
 	     
 	 }
 	 
-	 private Material getMaterial(String input)
+	 @SuppressWarnings("deprecation")
+	private Material getMaterial(String input)
 	 {
 		 Material blockmaterial;
 		 if(isInteger(input))

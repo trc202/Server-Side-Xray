@@ -1,6 +1,7 @@
 package com.trc202.ServerSideXray;
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 import org.bukkit.block.Block;
 
@@ -9,21 +10,21 @@ public class BlocksToBeSent {
 	private ArrayList<Block> drawAsGlowstone;
 	private ArrayList<Block> drawAsGlass;
 	private ArrayList<Block> drawAsOriginal;
-	private String playername;
+	private UUID playerUUID;
 	private boolean wait;
 	
-	public BlocksToBeSent(String plrname)
+	public BlocksToBeSent(UUID playerUUID)
 	{
-		playername = plrname;
+		this.playerUUID = playerUUID;
 		drawAsGlowstone = new ArrayList<Block>();
 		drawAsGlass = new ArrayList<Block>();
 		drawAsOriginal = new ArrayList<Block>();
 		wait = false;
 	}
 	
-	public String getPlayer()
+	public UUID getPlayer()
 	{
-		return playername;
+		return playerUUID;
 	}
 	/*
 	 * Returns all blocks in glowstone list
